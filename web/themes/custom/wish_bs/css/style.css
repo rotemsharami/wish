@@ -1,0 +1,11 @@
+body { font-family: system-ui, Arial; }
+.page-title { margin-top: 1rem; }
+.form-control,
+.form-select {
+  margin-bottom: 1rem;
+}
+
+button,
+.btn {
+  border-radius: .5rem;
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html{{ html_attributes }}>
+<head>
+  <head-placeholder token="{{ placeholder_token }}">
+  <title>{{ head_title|safe_join(' | ') }}</title>
+  <css-placeholder token="{{ placeholder_token }}">
+  <js-placeholder token="{{ placeholder_token }}">
+</head>
+
+<body{{ attributes }}>
+<a href="#main-content" class="visually-hidden-focusable">Skip to content</a>
+
+<header class="bg-dark text-white">
+  <div class="container py-3">
+    {{ page.header }}
+  </div>
+</header>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container">
+    {{ page.primary_menu }}
+  </div>
+</nav>
+
+<main id="main-content" class="container my-4">
+  {{ page.content }}
+</main>
+
+<footer class="bg-dark text-white mt-5">
+  <div class="container py-4">
+    {{ page.footer }}
+  </div>
+</footer>
+
+{{ page.bottom }}
+
+<js-bottom-placeholder token="{{ placeholder_token }}">
+</body>
+</html>
