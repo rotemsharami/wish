@@ -22,7 +22,6 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:github-actions
-          ephemeral: true
 
       # 🚀 Deploy בפועל
       - name: Deploy to test via SSH
