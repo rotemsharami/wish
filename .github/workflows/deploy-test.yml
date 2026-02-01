@@ -31,7 +31,6 @@ jobs:
           TEST_SSH_KEY: ${{ secrets.TEST_SSH_KEY }}
         run: |
           set -e
-
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
 
