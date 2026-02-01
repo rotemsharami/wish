@@ -3,9 +3,7 @@ name: CI + Deploy to Test
 on:
   push:
     branches: [ develop ]
-  workflow_dispatch:
 
-    
 jobs:
   deploy-test:
     runs-on: ubuntu-latest
@@ -17,7 +15,6 @@ jobs:
       - name: Validate composer.json
         run: composer validate --no-check-publish
 
-      # 🔑 Connect to Tailscale (OAuth)
       - name: Connect to Tailscale
         uses: tailscale/github-action@v2
         with:
@@ -25,20 +22,13 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:tagci
 
-      # (אופציונלי describe)
-      - name: Tailscale status
-        run: |
-          tailscale status || true
-          tailscale ip -4 || true
-
-      # 🚀 Deploy via SSH
       - name: Deploy to test via SSH
         env:
           TEST_HOST: ${{ secrets.TEST_HOST }}
           TEST_USER: ${{ secrets.TEST_USER }}
           TEST_SSH_KEY: ${{ secrets.TEST_SSH_KEY }}
         run: |
-          set -euo pipefail
+          set -e
 
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
@@ -46,11 +36,8 @@ jobs:
           echo "$TEST_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          # מוסיף known_hosts כדי לא להתקע על prompt
           ssh-keyscan -H "$TEST_HOST" >> ~/.ssh/known_hosts
 
-          # מריץ deploy על השרת
           ssh -i ~/.ssh/id_ed25519 \
-            -o IdentitiesOnly=yes \
             "$TEST_USER@$TEST_HOST" \
             "cd /var/www/wish && bash ./deploy_test.sh"
