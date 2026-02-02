@@ -4,9 +4,19 @@ on:
   push:
     branches: [ develop ]
 
+# מונע הצטברות ריצות; אם עשית push חדש בזמן שריצה רצה – הקודמת תבוטל
+concurrency:
+  group: deploy-test-${{ github.ref }}
+  cancel-in-progress: true
+
+# הרשאות מינימליות ל-checkout
+permissions:
+  contents: read
+
 jobs:
   deploy-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -22,6 +32,31 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:tagci
+          version: "1.80.0"
+          hostname: gha-wish-deploy-test
+
+      # ✅ בדיקת חיבור SSH לפני דיפלוי (כדי לקבל שגיאה ברורה)
+      - name: Test SSH connectivity
+        env:
+          TEST_HOST: ${{ secrets.TEST_HOST }}
+          TEST_USER: ${{ secrets.TEST_USER }}
+          TEST_SSH_KEY: ${{ secrets.TEST_SSH_KEY }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          echo "$TEST_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          # מוסיף את מפתח השרת ל-known_hosts (Strict)
+          ssh-keyscan -H "$TEST_HOST" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+          # בדיקה: פקודה פשוטה בשרת
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes \
+            "$TEST_USER@$TEST_HOST" "whoami && hostname && pwd"
 
       # 🚀 Deploy via SSH
       - name: Deploy to test via SSH
@@ -39,6 +74,7 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
 
           ssh-keyscan -H "$TEST_HOST" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes \
             "$TEST_USER@$TEST_HOST" \
