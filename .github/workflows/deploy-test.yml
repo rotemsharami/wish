@@ -1,0 +1,50 @@
+name: CI + Deploy to Test
+
+on:
+  push:
+    branches: [ develop ]
+
+concurrency:
+  group: deploy-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate composer.json
+        run: composer validate --no-check-publish
+
+      # 🔑 Connect to Tailscale
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:tagci
+
+      # 🚀 Deploy via SSH
+      - name: Deploy to test via SSH
+        env:
+          TEST_HOST: ${{ secrets.TEST_HOST }}
+          TEST_USER: ${{ secrets.TEST_USER }}
+          TEST_SSH_KEY: ${{ secrets.TEST_SSH_KEY }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          echo "$TEST_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          ssh-keyscan -H "$TEST_HOST" >> ~/.ssh/known_hosts
+
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes \
+            "$TEST_USER@$TEST_HOST" \
+            "cd /var/www/wish && bash ./deploy_test.sh"
