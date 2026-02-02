@@ -22,7 +22,6 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:tagci
-          version: "1.80.0"
 
       # 🚀 Deploy via SSH
       - name: Deploy to test via SSH
@@ -31,7 +30,7 @@ jobs:
           TEST_USER: ${{ secrets.TEST_USER }}
           TEST_SSH_KEY: ${{ secrets.TEST_SSH_KEY }}
         run: |
-          set -e
+          set -euo pipefail
 
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
@@ -41,6 +40,6 @@ jobs:
 
           ssh-keyscan -H "$TEST_HOST" >> ~/.ssh/known_hosts
 
-          ssh -i ~/.ssh/id_ed25519 \
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes \
             "$TEST_USER@$TEST_HOST" \
             "cd /var/www/wish && bash ./deploy_test.sh"
