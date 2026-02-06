@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Force fail
+        run: exit 1
+
       - name: Validate composer.json (if exists)
         run: |
           if [ -f composer.json ]; then
