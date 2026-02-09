@@ -16,6 +16,8 @@ jobs:
       - name: Setup SSH
         shell: bash
         run: |
+          set -euo pipefail
+
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
 
@@ -24,20 +26,37 @@ jobs:
             exit 1
           fi
 
+          # Write private key exactly as-is (no indentation!)
           cat > ~/.ssh/id_ed25519 <<'KEY'
-          ${{ secrets.AWS_SSH_KEY }}
-          KEY
+${{ secrets.AWS_SSH_KEY }}
+KEY
 
           chmod 600 ~/.ssh/id_ed25519
+
           ssh-keyscan -H "${{ secrets.AWS_HOST }}" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
       - name: Deploy via SSH
+        shell: bash
         run: |
-          ssh ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} << 'EOF'
-            set -e
+          set -euo pipefail
+
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes \
+            ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} <<'EOF'
+            set -euo pipefail
+
             cd /var/www/wish
-            git pull origin main
+
+            # Sync to exact main state (avoid drift)
+            git fetch --all
+            git reset --hard origin/main
+
             composer install --no-dev --optimize-autoloader
-            ./vendor/bin/drush cr
-          EOF
+
+            # Drupal cache rebuild (Twig changes require this)
+            if command -v drush >/dev/null 2>&1; then
+              drush cr
+            else
+              ./vendor/bin/drush cr
+            fi
+EOF
