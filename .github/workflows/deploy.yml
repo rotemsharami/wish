@@ -26,10 +26,10 @@ jobs:
             exit 1
           fi
 
-          # Write private key exactly as-is (no indentation!)
+          # Write private key exactly as-is
           cat > ~/.ssh/id_ed25519 <<'KEY'
-${{ secrets.AWS_SSH_KEY }}
-KEY
+          ${{ secrets.AWS_SSH_KEY }}
+          KEY
 
           chmod 600 ~/.ssh/id_ed25519
 
@@ -42,21 +42,19 @@ KEY
           set -euo pipefail
 
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes \
-            ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} <<'EOF'
-            set -euo pipefail
+            "${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }}" <<'EOF'
+          set -euo pipefail
 
-            cd /var/www/wish
+          cd /var/www/wish
 
-            # Sync to exact main state (avoid drift)
-            git fetch --all
-            git reset --hard origin/main
+          # Sync to exact main state
+          git fetch origin main
+          git reset --hard origin/main
 
-            composer install --no-dev --optimize-autoloader
+          # Install PHP deps (includes vendor/bin/drush)
+          composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
-            # Drupal cache rebuild (Twig changes require this)
-            if command -v drush >/dev/null 2>&1; then
-              drush cr
-            else
-              ./vendor/bin/drush cr
-            fi
-EOF
+          # Drupal cache rebuild using LOCAL drush
+          php ./vendor/bin/drush --root=web cr
+
+          EOF
