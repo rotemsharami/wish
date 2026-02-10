@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function wish_base_theme($existing, $type, $theme, $path) {
+  return [
+    'wish_base_page' => [
+      'variables' => [
+        'data' => NULL,
+      ],
+      'template' => 'wish-base-page',
+    ],
+  ];
+}

@@ -1,0 +1,5 @@
+name: 'Wish Base'
+type: module
+description: 'Example module with controller + JS + CSS'
+core_version_requirement: ^10
+package: Custom
