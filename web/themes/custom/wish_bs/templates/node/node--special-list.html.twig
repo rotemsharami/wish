@@ -1,1 +1,34 @@
-rotem
+{% if nasa_rows is defined and nasa_rows|length %}
+  <h2>NASA NeoWs (Near-Earth Objects)</h2>
+
+  <table class="nasa-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Name</th>
+        <th>Hazardous</th>
+        <th>Diameter (m)</th>
+        <th>Miss distance (km)</th>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in nasa_rows %}
+        <tr>
+          <td>{{ r.date }}</td>
+          <td>{{ r.name }}</td>
+          <td>{{ r.hazardous }}</td>
+          <td>{{ r.diameter_m }}</td>
+          <td>{{ r.miss_km }}</td>
+          <td>
+            {% if r.url %}
+              <a href="{{ r.url }}" target="_blank" rel="noopener">JPL</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No NASA data yet.</p>
+{% endif %}

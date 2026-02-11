@@ -1,0 +1,6 @@
+services:
+  wish_base.nasa_api:
+    class: Drupal\wish_base\Service\NasaApi
+    arguments: ['@http_client', '@cache.default']
+
+    

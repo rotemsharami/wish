@@ -1,15 +1,31 @@
 <?php
 
+use Drupal\node\NodeInterface;
+
 /**
- * Implements hook_theme().
+ * Implements hook_preprocess_node().
  */
-function wish_base_theme($existing, $type, $theme, $path) {
-  return [
-    'wish_base_page' => [
-      'variables' => [
-        'data' => NULL,
-      ],
-      'template' => 'wish-base-page',
-    ],
-  ];
+function wish_base_preprocess_node(array &$variables) {
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = $variables['node'] ?? null;
+  if (!$node instanceof NodeInterface) {
+    return;
+  }
+
+  if ($node->bundle() !== 'special_list') {
+    return;
+  }
+
+  // Date range: today -> +2 days (דוגמה קצרה).
+  $start = (new \DateTime('today'))->format('Y-m-d');
+  $end = (new \DateTime('+2 days'))->format('Y-m-d');
+
+  /** @var \Drupal\wish_base\Service\NasaApi $nasa */
+  $nasa = \Drupal::service('wish_base.nasa_api');
+
+  $variables['nasa_rows'] = $nasa->getNeoFeedRows($start, $end);
+
+  // כדי שלא ייתקע על cache של node twig בזמן תרגול:
+  // (אחרת תראה תוצאות ישנות)
+  $variables['#cache']['max-age'] = 0;
 }
