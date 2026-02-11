@@ -1,0 +1,7 @@
+wish_base.page:
+  path: '/wish-base'
+  defaults:
+    _controller: '\Drupal\wish_base\Controller\WishBaseController::page'
+    _title: 'Wish Base Page'
+  requirements:
+    _permission: 'access content'

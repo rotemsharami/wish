@@ -1,0 +1,10 @@
+wish_base.page:
+  version: 1.x
+  js:
+    js/wish_base.js: {}
+  css:
+    theme:
+      css/wish_base.css: {}
+  dependencies:
+    - core/drupal
+    - core/once
