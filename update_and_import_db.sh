@@ -26,6 +26,8 @@ if [ ! -f "$SQL_FILE" ]; then
   exit 1
 fi
 
+#rotem
+
 echo "==> Importing DB from $SQL_FILE..."
 "$DRUSH" sql:drop -y
 "$DRUSH" sql:cli < "$SQL_FILE"
