@@ -30,9 +30,18 @@ echo "==> Importing DB from $SQL_FILE..."
 "$DRUSH" sql:drop -y
 "$DRUSH" sql:cli < "$SQL_FILE"
 
-echo "==> Running updates & cache rebuild..."
-"$DRUSH" updb -y
-"$DRUSH" cim -y || true
-"$DRUSH" cr
+echo "==> Running database updates..."
+"$DRUSH" updb -y || true
+
+echo "==> Config import (only if available)..."
+# ננסה קודם config:import (השם הרשמי), ואם קיים נריץ
+if "$DRUSH" list --format=string 2>/dev/null | grep -qE '(^|[[:space:]])config:import($|[[:space:]])'; then
+  "$DRUSH" config:import -y || true
+else
+  echo "==> Skipping config import (drush command config:import not available)."
+fi
+
+echo "==> Cache rebuild..."
+"$DRUSH" cr || true
 
 echo "✅ Done."
