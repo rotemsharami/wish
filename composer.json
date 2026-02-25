@@ -20,6 +20,10 @@
         "drupal/core-composer-scaffold": "^10.6",
         "drupal/core-project-message": "^10.6",
         "drupal/core-recommended": "^10.6",
+        "drupal/group": "^3.3",
+        "drupal/node_view_permissions": "^2.0",
+        "drupal/webform": "^6.2",
+        "drupal/webform_group": "^3.0",
         "drush/drush": "^13.7"
     },
     "conflict": {
