@@ -62,10 +62,10 @@ class NasaApi {
       foreach ($objects as $o) {
         $haz = !empty($o['is_potentially_hazardous_asteroid']) ? 'Yes' : 'No';
 
+
         $diamMin = $o['estimated_diameter']['meters']['estimated_diameter_min'] ?? null;
         $diamMax = $o['estimated_diameter']['meters']['estimated_diameter_max'] ?? null;
         $diamAvg = ($diamMin !== null && $diamMax !== null) ? round(($diamMin + $diamMax) / 2, 1) : '';
-
         $approach = $o['close_approach_data'][0] ?? [];
         $missKm = isset($approach['miss_distance']['kilometers']) ? round((float) $approach['miss_distance']['kilometers']) : '';
 
